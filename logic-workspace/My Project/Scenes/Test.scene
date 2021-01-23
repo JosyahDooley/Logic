@@ -1,0 +1,7 @@
+<G Name="Camera" Position="0.0 0.0" Scale="1.0 1.0" Rotation="0.0" Depth="0.0" Layer="0" ID="a9d75f52-1c9e-4b3f-9908-012ba92b03f2">
+	<B Name"engine.Camera">
+		<V shader="NULL">
+		<V renderLayer="0">
+		<V enabled="true">
+	</B>
+</G>
