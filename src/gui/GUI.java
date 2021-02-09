@@ -88,12 +88,10 @@ public class GUI
 	//Create a vector field with a name and box
 	public static Rect VectorField(Rect r, String name, Rect r2, float padding)
 	{
+		if(r2 == null) r2 = new Rect();
+		
 		//Display the name of the field in an area so it wont be too long
 		Label(name, r.x, r.y);
-		
-		
-		//Label is correct but the vector field is incorrect
-		//Look in the previous version to see the differences of the rectangle
 		
 		//Get a quarter of the total render area and render a float field for x and y at those locations
 		float half = (r.width - padding) / 2.0f;
@@ -110,6 +108,8 @@ public class GUI
 	//Create a vector field with a name and box
 	public static Vector2 VectorField(Rect r, String name, Vector2 v, float padding)
 	{
+		if(v == null) v = new Vector2();
+		
 		//Display the name of the field in an area so it wont be too long
 		Label(name, r.x, r.y);
 		
@@ -141,6 +141,8 @@ public class GUI
 	//Create a text field with a name and box
 	public static String TextField(Rect r, String name, String v, float padding)
 	{
+		if(v == null) v = "";
+		
 		//Display the name of the field in an area so it wont be too long
 		Label(name, r.x, r.y);
 		
@@ -164,20 +166,23 @@ public class GUI
 		ret = GUI.TextField(r, name, ret, padding);
 		
 		GUIArea a = areas.get(area);
-		Rect rf = r.AddPosition(a.culled);
+		Rect rf = r.AddPosition(a.actual);
 		rf.y -= a.Scroll();
+		rf = a.culled.GetIntersection(rf);
 		
-		if(Mouse.GetButtonUp(0) && rf.Contains(Mouse.Position()) && type != null)
+		if(rf != null)
 		{
-			engine.Object dragged = Editor.DraggedObject();
-			if(dragged != null)
+			if(Mouse.GetButtonUp(0) && rf.Contains(Mouse.Position()) && type != null)
 			{
-				if(dragged.getClass() == type) return dragged; 
-				else if(dragged.getClass() == GameObject.class && type == LogicBehaviour.class)
+				engine.Object dragged = Editor.DraggedObject();
+				if(dragged != null)
 				{
-					//Work in progress for setting components
+					if(dragged.getClass() == type) return dragged; 
+					else if(dragged.getClass() == GameObject.class && type == LogicBehaviour.class)
+					{
+						//Work in progress for setting components
+					}
 				}
-				
 			}
 		}
 		

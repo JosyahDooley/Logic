@@ -16,6 +16,7 @@ public class Hierarchy extends engine.Object
 	private Rect clickRect;
 	private int i;
 	private int scroll;
+	private Rect drawRect;
 	
 	public Hierarchy()
 	{
@@ -24,6 +25,7 @@ public class Hierarchy extends engine.Object
 	
 	public void Render(Rect r)
 	{
+		drawRect = r;
 		List<GameObject> loop = new ArrayList<GameObject>();
 		int offset = 0;
 		loop.add(GameObject.Master());
@@ -107,7 +109,7 @@ public class Hierarchy extends engine.Object
 	
 	private byte CheckDrop(GameObject parent)
 	{
-		if(Mouse.GetButtonUp(0))
+		if(Mouse.GetButtonUp(0) && drawRect.Contains(Mouse.Position()))
 		{
 			engine.Object dragged = Editor.DraggedObject();
 			if(dragged != null)

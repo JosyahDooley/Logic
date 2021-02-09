@@ -47,7 +47,7 @@ public class BehaviourAttributes
 				else if(!c.getComponentType().isPrimitive())
 				{
 					Object[] arr = (Object[]) f.get(o);
-					height += 24 * (arr.length + 1);
+					height += 24 * (arr.length);
 				}
 			}
 			if(engine.CustomClass.class.isAssignableFrom(f.getType()))

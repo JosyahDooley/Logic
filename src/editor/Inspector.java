@@ -1,6 +1,7 @@
 package editor;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import engine.Debug;
@@ -206,6 +207,87 @@ public class Inspector extends engine.Object
 							}
 						}
 					}
+					else if(type == String.class)
+					{
+						int p = ((String[]) (bf.field.get(bf.object))).length;
+						String v = GUI.TextField(new Rect(bf.offset, (f * 22 + padding) + offset, r.width - bf.offset, 22), bf.field.getName(), String.valueOf(p), 100);
+						if(!String.valueOf(p).equals(v))
+						{
+							String[] res = new String[Integer.parseInt(v)];
+							String[] src = ((String[]) (bf.field.get(bf.object)));
+							for(int i = 0; i < res.length; i++)
+							{
+								if(i > src.length - 1) break;
+								res[i] = src[i];
+							}
+							bf.field.set(bf.object, res);
+						}
+						offset += 22;
+						padding += 2;
+						
+						String[] arr = (String[]) bf.field.get(bf.object);
+						for(int i = 0; i < arr.length; i++)
+						{
+							DrawVariable(new Rect(bf.offset, (f * 22 + padding) + offset, r.width - bf.offset, 22), bf, padding, i);
+							if(i != arr.length - 1)
+							{
+								offset += 22;
+								padding += 2;
+							}
+						}
+					}
+					else if(type == boolean.class)
+					{
+						int p = ((Boolean[]) (bf.field.get(bf.object))).length;
+						String v = GUI.TextField(new Rect(bf.offset, (f * 22 + padding) + offset, r.width - bf.offset, 22), bf.field.getName(), String.valueOf(p), 100);
+						if(!String.valueOf(p).equals(v))
+						{
+							Boolean[] res = new Boolean[Integer.parseInt(v)];
+							Boolean[] src = ((Boolean[]) (bf.field.get(bf.object)));
+							for(int i = 0; i < res.length; i++)
+							{
+								if(i > src.length - 1) break;
+								res[i] = src[i];
+							}
+							bf.field.set(bf.object, res);
+						}
+						offset += 22;
+						padding += 2;
+						
+						Boolean[] arr = (Boolean[]) bf.field.get(bf.object);
+						for(int i = 0; i < arr.length; i++)
+						{
+							DrawVariable(new Rect(bf.offset, (f * 22 + padding) + offset, r.width - bf.offset, 22), bf, padding, i);
+							if(i != arr.length - 1)
+							{
+								offset += 22;
+								padding += 2;
+							}
+						}
+					}
+					else if(engine.Object.class.isAssignableFrom(type))
+					{
+						int p = ((engine.Object[]) (bf.field.get(bf.object))).length;
+						String v = GUI.TextField(new Rect(bf.offset, (f * 22 + padding) + offset, r.width - bf.offset, 22), bf.field.getName(), String.valueOf(p), 100);
+						if(!String.valueOf(p).equals(v))
+						{
+							engine.Object[] src = ((engine.Object[]) (bf.field.get(bf.object)));
+							bf.field.set(bf.object, Arrays.copyOf(src, Integer.parseInt(v)));
+						}
+						offset += 22;
+						padding += 2;
+						
+						engine.Object[] arr = (engine.Object[]) bf.field.get(bf.object);
+						for(int i = 0; i < arr.length; i++)
+						{
+							DrawVariable(new Rect(bf.offset, (f * 22 + padding) + offset, r.width - bf.offset, 22), bf, padding, i);
+							if(i != arr.length - 1)
+							{
+								offset += 22;
+								padding += 2;
+							}
+						}
+					}
 				}
 				catch (IllegalArgumentException | IllegalAccessException e) {e.printStackTrace();}
 			}
@@ -338,193 +420,372 @@ public class Inspector extends engine.Object
 				}
 			}
 			catch(IllegalArgumentException | IllegalAccessException e) {e.printStackTrace();}
-		} //Left off of arrays right here, will get to later
+		}
 		else if(name.equals("Vector2"))
 		{
 			try
 			{
-				Vector2 p = (Vector2) bf.field.get(bf.object);
-				Vector2 v = GUI.VectorField(r, bf.field.getName(), p, 100);
-				if(!p.equals(v))
+				if(isArray == 0)
 				{
-					UndoRedo.RegisterUndo(bf.object, bf.field);
-					bf.field.set(bf.object, v);
+					Vector2 p = (Vector2) bf.field.get(bf.object);
+					Vector2 v = GUI.VectorField(r, bf.field.getName(), p, 100);
+					if(!p.equals(v))
+					{
+						UndoRedo.RegisterUndo(bf.object, bf.field);
+						bf.field.set(bf.object, v);
+					}
+				}
+				else
+				{
+					Vector2[] ret = ((Vector2[]) (bf.field.get(bf.object)));
+					Vector2 p = ret[index];
+					Vector2 v = GUI.VectorField(r, "", p, 100);
+					if(!p.equals(v))
+					{
+						UndoRedo.RegisterUndo(bf.object, bf.field);
+						ret[index] = v;
+						bf.field.set(bf.object, ret);
+					}
 				}
 			}
-			catch(IllegalArgumentException e) {e.printStackTrace();}
-			catch(IllegalAccessException e) {e.printStackTrace();}
+			catch(IllegalArgumentException | IllegalAccessException e) {e.printStackTrace();}
 		}
 		else if(name.equals("Sprite"))
 		{
 			try
 			{
-				Sprite sprite = (Sprite)bf.field.get(bf.object);
-				engine.Object o = GUI.ObjectField(r, bf.field.getName(), sprite, Sprite.class, 100);
-				if(!o.equals(sprite))
+				if(isArray == 0)
 				{
-					UndoRedo.RegisterUndo(bf.object, bf.field);
-					bf.field.set(bf.object, o);
+					Sprite sprite = (Sprite)bf.field.get(bf.object);
+					engine.Object o = GUI.ObjectField(r, bf.field.getName(), sprite, Sprite.class, 100);
+					if(!o.equals(sprite))
+					{
+						UndoRedo.RegisterUndo(bf.object, bf.field);
+						bf.field.set(bf.object, o);
+					}
+				}
+				else
+				{
+					Sprite[] ret = ((Sprite[]) (bf.field.get(bf.object)));
+					Sprite sprite = ret[index];
+					engine.Object o = GUI.ObjectField(r, "", sprite, Sprite.class, 100);
+					if(o != null)
+					{
+						if(!o.equals(sprite))
+						{
+							UndoRedo.RegisterUndo(bf.object, bf.field);
+							ret[index] = (Sprite) o;
+							bf.field.set(bf.object, ret);
+						}
+					}
 				}
 			}
-			catch(IllegalArgumentException e) {e.printStackTrace();}
-			catch(IllegalAccessException e) {e.printStackTrace();}
+			catch(IllegalArgumentException | IllegalAccessException e) {e.printStackTrace();}
 		}
 		else if(name.equals("GameObject"))
 		{
 			try
 			{
-				GameObject go = (GameObject)bf.field.get(bf.object);
-				engine.Object o = GUI.ObjectField(r, bf.field.getName(), go, GameObject.class, 100);
-				if(!go.equals(o))
+				if(isArray == 0)
 				{
-					UndoRedo.RegisterUndo(bf.object, bf.field);
-					bf.field.set(bf.object, o);
+					GameObject go = (GameObject)bf.field.get(bf.object);
+					engine.Object o = GUI.ObjectField(r, bf.field.getName(), go, GameObject.class, 100);
+					if(!go.equals(o))
+					{
+						UndoRedo.RegisterUndo(bf.object, bf.field);
+						bf.field.set(bf.object, o);
+					}
+				}
+				else
+				{
+					GameObject[] ret = ((GameObject[]) (bf.field.get(bf.object)));
+					GameObject go = ret[index];
+					engine.Object o = GUI.ObjectField(r, "", go, GameObject.class, 100);
+					if(o != null)
+					{
+						if(!o.equals(go))
+						{
+							UndoRedo.RegisterUndo(bf.object, bf.field);
+							ret[index] = (GameObject) o;
+							bf.field.set(bf.object, ret);
+						}
+					}
 				}
 			}
-			catch(IllegalArgumentException e) {e.printStackTrace();}
-			catch(IllegalAccessException e) {e.printStackTrace();}
+			catch(IllegalArgumentException | IllegalAccessException e) {e.printStackTrace();}
 		}
 		else if(name.equals("Texture"))
 		{
 			try
 			{
-				Texture tex = (Texture)bf.field.get(bf.object);
-				engine.Object o = GUI.ObjectField(r, bf.field.getName(), tex, Texture.class, 100);
-				if(!tex.equals(o))
+				if(isArray == 0)
 				{
-					UndoRedo.RegisterUndo(bf.object, bf.field);
-					bf.field.set(bf.object, o);
+					Texture tex = (Texture)bf.field.get(bf.object);
+					engine.Object o = GUI.ObjectField(r, bf.field.getName(), tex, Texture.class, 100);
+					if(!tex.equals(o))
+					{
+						UndoRedo.RegisterUndo(bf.object, bf.field);
+						bf.field.set(bf.object, o);
+					}
+				}
+				else
+				{
+					Texture[] ret = ((Texture[]) (bf.field.get(bf.object)));
+					Texture tex = ret[index];
+					engine.Object o = GUI.ObjectField(r, "", tex, Texture.class, 100);
+					if(tex != null)
+					{
+						if(!tex.equals(o))
+						{
+							UndoRedo.RegisterUndo(bf.object, bf.field);
+							ret[index] = (Texture) o;
+							bf.field.set(bf.object, ret);
+						}
+					}
 				}
 			}
-			catch(IllegalArgumentException e) {e.printStackTrace();}
-			catch(IllegalAccessException e) {e.printStackTrace();}
+			catch(IllegalArgumentException | IllegalAccessException e) {e.printStackTrace();}
 		}
 		else if(name.equals("GUISkin"))
 		{
 			try
 			{
-				GUISkin skin = (GUISkin)bf.field.get(bf.object);
-				engine.Object o = GUI.ObjectField(r, bf.field.getName(), skin, GUISkin.class, 100);
-				if(!skin.equals(o))
+				if(isArray == 0)
 				{
-					UndoRedo.RegisterUndo(bf.object, bf.field);
-					bf.field.set(bf.object, o);
+					GUISkin skin = (GUISkin)bf.field.get(bf.object);
+					engine.Object o = GUI.ObjectField(r, bf.field.getName(), skin, GUISkin.class, 100);
+					if(!skin.equals(o))
+					{
+						UndoRedo.RegisterUndo(bf.object, bf.field);
+						bf.field.set(bf.object, o);
+					}
+				}
+				else
+				{
+					GUISkin[] ret = ((GUISkin[]) (bf.field.get(bf.object)));
+					GUISkin skin = ret[index];
+					engine.Object o = GUI.ObjectField(r, "", skin, GUISkin.class, 100);
+					if(skin != null)
+					{
+						if(!skin.equals(o))
+						{
+							UndoRedo.RegisterUndo(bf.object, bf.field);
+							ret[index] = (GUISkin) o;
+							bf.field.set(bf.object, ret);
+						}
+					}
 				}
 			}
-			catch(IllegalArgumentException e) {e.printStackTrace();}
-			catch(IllegalAccessException e) {e.printStackTrace();}
+			catch(IllegalArgumentException | IllegalAccessException e) {e.printStackTrace();}
 		}
 		else if(name.equals("Font"))
 		{
 			try
 			{
-				Font font = (Font)bf.field.get(bf.object);
-				engine.Object o = GUI.ObjectField(r, bf.field.getName(), font, Font.class, 100);
-				if(!font.equals(o))
+				if(isArray == 0)
 				{
-					UndoRedo.RegisterUndo(bf.object, bf.field);
-					bf.field.set(bf.object, o);
+					Font font = (Font)bf.field.get(bf.object);
+					engine.Object o = GUI.ObjectField(r, bf.field.getName(), font, Font.class, 100);
+					if(!font.equals(o))
+					{
+						UndoRedo.RegisterUndo(bf.object, bf.field);
+						bf.field.set(bf.object, o);
+					}
+				}
+				else
+				{
+					Font[] ret = ((Font[]) (bf.field.get(bf.object)));
+					Font font = ret[index];
+					engine.Object o = GUI.ObjectField(r, "", font, Font.class, 100);
+					if(font != null)
+					{
+						if(!font.equals(o))
+						{
+							UndoRedo.RegisterUndo(bf.object, bf.field);
+							ret[index] = (Font) o;
+							bf.field.set(bf.object, ret);
+						}
+					}
 				}
 			}
-			catch(IllegalArgumentException e) {e.printStackTrace();}
-			catch(IllegalAccessException e) {e.printStackTrace();}
+			catch(IllegalArgumentException | IllegalAccessException e) {e.printStackTrace();}
 		}
 		else if(name.equals("Material"))
 		{
 			try
 			{
-				Material mat = (Material)bf.field.get(bf.object);
-				engine.Object o = GUI.ObjectField(r, bf.field.getName(), mat, Material.class, 100);
-				if(!mat.equals(o))
+				if(isArray == 0)
 				{
-					UndoRedo.RegisterUndo(bf.object, bf.field);
-					bf.field.set(bf.object, o);
+					Material mat = (Material)bf.field.get(bf.object);
+					engine.Object o = GUI.ObjectField(r, bf.field.getName(), mat, Material.class, 100);
+					if(!mat.equals(o))
+					{
+						UndoRedo.RegisterUndo(bf.object, bf.field);
+						bf.field.set(bf.object, o);
+					}
+				}
+				else
+				{
+					Material[] ret = ((Material[]) (bf.field.get(bf.object)));
+					Material mat = ret[index];
+					engine.Object o = GUI.ObjectField(r, "", mat, Material.class, 100);
+					if(mat != null)
+					{
+						if(!mat.equals(o))
+						{
+							UndoRedo.RegisterUndo(bf.object, bf.field);
+							ret[index] = (Material) o;
+							bf.field.set(bf.object, ret);
+						}
+					}
 				}
 			}
-			catch(IllegalArgumentException e) {e.printStackTrace();}
-			catch(IllegalAccessException e) {e.printStackTrace();}
+			catch(IllegalArgumentException | IllegalAccessException e) {e.printStackTrace();}
 		}
 		else if(name.equals("Shader"))
 		{
 			try
 			{
-				Shader shader = (Shader)bf.field.get(bf.object);
-				engine.Object o = GUI.ObjectField(r, bf.field.getName(), shader, Shader.class, 100);
-				if(shader == null) return;
-				if(!shader.equals(o))
+				if(isArray == 0)
 				{
-					UndoRedo.RegisterUndo(bf.object, bf.field);
-					bf.field.set(bf.object, o);
+					Shader shader = (Shader)bf.field.get(bf.object);
+					engine.Object o = GUI.ObjectField(r, bf.field.getName(), shader, Shader.class, 100);
+					if(shader == null) return;
+					if(!shader.equals(o))
+					{
+						UndoRedo.RegisterUndo(bf.object, bf.field);
+						bf.field.set(bf.object, o);
+					}
+				}
+				else
+				{
+					Shader[] ret = ((Shader[]) (bf.field.get(bf.object)));
+					Shader shader = ret[index];
+					engine.Object o = GUI.ObjectField(r, "", shader, Shader.class, 100);
+					if(shader != null)
+					{
+						if(!shader.equals(o))
+						{
+							UndoRedo.RegisterUndo(bf.object, bf.field);
+							ret[index] = (Shader) o;
+							bf.field.set(bf.object, ret);
+						}
+					}
 				}
 			}
-			catch(IllegalArgumentException e) {e.printStackTrace();}
-			catch(IllegalAccessException e) {e.printStackTrace();}
+			catch(IllegalArgumentException | IllegalAccessException e) {e.printStackTrace();}
 		}
 		else if(name.equals("AudioClip"))
 		{
 			try
 			{
-				AudioClip clip = (AudioClip)bf.field.get(bf.object);
-				engine.Object o = GUI.ObjectField(r, bf.field.getName(), clip, AudioClip.class, 100);
-				if(!clip.equals(o))
+				if(isArray == 0)
 				{
-					UndoRedo.RegisterUndo(bf.object, bf.field);
-					bf.field.set(bf.object, o);
+					AudioClip clip = (AudioClip)bf.field.get(bf.object);
+					engine.Object o = GUI.ObjectField(r, bf.field.getName(), clip, AudioClip.class, 100);
+					if(!clip.equals(o))
+					{
+						UndoRedo.RegisterUndo(bf.object, bf.field);
+						bf.field.set(bf.object, o);
+					}
+				}
+				else
+				{
+					AudioClip[] ret = ((AudioClip[]) (bf.field.get(bf.object)));
+					AudioClip clip = ret[index];
+					engine.Object o = GUI.ObjectField(r, "", clip, AudioClip.class, 100);
+					if(clip != null)
+					{
+						if(!clip.equals(o))
+						{
+							UndoRedo.RegisterUndo(bf.object, bf.field);
+							ret[index] = (AudioClip) o;
+							bf.field.set(bf.object, ret);
+						}
+					}
 				}
 			}
-			catch(IllegalArgumentException e) {e.printStackTrace();}
-			catch(IllegalAccessException e) {e.printStackTrace();}
+			catch(IllegalArgumentException | IllegalAccessException e) {e.printStackTrace();}
 		}
 		else if(engine.CustomClass.class.isAssignableFrom(bf.field.getType()))
 		{
 			try
 			{
-				boolean p = ((engine.CustomClass)bf.field.get(bf.object)).expanded;
-				boolean v = GUI.Toggle(p, r, bf.field.getName(), Editor.arrowDown, Editor.arrowRight);
-				if(p != v)
+				if(isArray == 0)
 				{
-					UndoRedo.RegisterUndo(bf.object, bf.field);
-					((engine.CustomClass)bf.field.get(bf.object)).expanded = v;
-					SetAttributes((engine.Object) Editor.GetInspected(), false);
+					boolean p = ((engine.CustomClass)bf.field.get(bf.object)).expanded;
+					boolean v = GUI.Toggle(p, r, bf.field.getName(), Editor.arrowDown, Editor.arrowRight);
+					if(p != v)
+					{
+						UndoRedo.RegisterUndo(bf.object, bf.field);
+						((engine.CustomClass)bf.field.get(bf.object)).expanded = v;
+						SetAttributes((engine.Object) Editor.GetInspected(), false);
+					}
+				}
+				else
+				{
+					//This class will not yet be able to be put in an array
 				}
 			}
-			catch(IllegalArgumentException e) {e.printStackTrace();}
-			catch(IllegalAccessException e) {e.printStackTrace();}
+			catch(IllegalArgumentException | IllegalAccessException e) {e.printStackTrace();}
 			GUI.Label(bf.field.getName(), new Vector2(r.x, r.y));
 		}
 		else if(engine.LogicBehaviour.class.isAssignableFrom(bf.field.getType()))
 		{
 			try
 			{
-				LogicBehaviour behaviour = (LogicBehaviour)bf.field.get(bf.object);
-				engine.Object o = GUI.ObjectField(r, bf.field.getName(), behaviour, LogicBehaviour.class, 100);
-				if(!behaviour.equals(o))
+				if(isArray == 0)
 				{
-					UndoRedo.RegisterUndo(bf.object, bf.field);
-					bf.field.set(bf.object, o);
+					LogicBehaviour behaviour = (LogicBehaviour)bf.field.get(bf.object);
+					engine.Object o = GUI.ObjectField(r, bf.field.getName(), behaviour, LogicBehaviour.class, 100);
+					if(!behaviour.equals(o))
+					{
+						UndoRedo.RegisterUndo(bf.object, bf.field);
+						bf.field.set(bf.object, o);
+					}
+				}
+				else
+				{
+					LogicBehaviour[] ret = ((LogicBehaviour[]) (bf.field.get(bf.object)));
+					LogicBehaviour behaviour = ret[index];
+					engine.Object o = GUI.ObjectField(r, "", behaviour, LogicBehaviour.class, 100);
+					if(behaviour != null)
+					{
+						if(!behaviour.equals(o))
+						{
+							UndoRedo.RegisterUndo(bf.object, bf.field);
+							ret[index] = (LogicBehaviour) o;
+							bf.field.set(bf.object, ret);
+						}
+					}
 				}
 			}
-			catch(IllegalArgumentException e) {e.printStackTrace();}
-			catch(IllegalAccessException e) {e.printStackTrace();}
+			catch(IllegalArgumentException | IllegalAccessException e) {e.printStackTrace();}
 		}
 		else if(name.equals("Rect"))
 		{
 			try
 			{
-				Rect fieldRect = (Rect) bf.field.get(bf.object);
-				Rect v = GUI.VectorField(r, bf.field.getName(), fieldRect, 100);
-				if(!fieldRect.equals(v))
+				if(isArray == 0)
 				{
-					UndoRedo.RegisterUndo(bf.object, bf.field);
-					bf.field.set(bf.object, v);
+					Rect fieldRect = (Rect) bf.field.get(bf.object);
+					Rect v = GUI.VectorField(r, bf.field.getName(), fieldRect, 100);
+					if(!fieldRect.equals(v))
+					{
+						UndoRedo.RegisterUndo(bf.object, bf.field);
+						bf.field.set(bf.object, v);
+					}
 				}
-				//padding += 22;
+				else
+				{
+					//This class will not yet be able to be put in an array for offset reasons
+				}
 			}
-			catch(IllegalArgumentException e) {e.printStackTrace();}
-			catch(IllegalAccessException e) {e.printStackTrace();}
+			catch(IllegalArgumentException | IllegalAccessException e) {e.printStackTrace();}
 		}
 		else
 		{
+			//Just so we can atleast see it visually for the moment
 			GUI.TextField(r, bf.field.getName(), "", 100);
 		}
 		

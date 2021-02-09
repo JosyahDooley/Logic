@@ -80,7 +80,11 @@ public class SceneManager
 				else if(line.startsWith("<P")) g.Parent(GameObject.Find(split[1]));
 			}
 			
-			for(LogicBehaviour behaviour : batch.keySet()) SetClass(behaviour, batch.get(behaviour));
+			for(LogicBehaviour behaviour : batch.keySet())
+			{
+				if(behaviour != null) SetClass(behaviour, batch.get(behaviour));
+				else if(g != null) Debug.Log("Could not attach component to " + g.Name() + " because it could not be found!");
+			}
 			
 			GameObject.Recalculate();
 			
@@ -115,10 +119,10 @@ public class SceneManager
 				try
 				{
 					SetVariable(o, sep[0], sep[1].split("\"")[1]);
-					data.remove(0);
-					continue;
 				}
-				catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {Debug.Log("Could not set " + sep[0]);}
+				catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {Debug.Log("Could not set \"" + sep[0] + "\" because it could not be found!");}
+				data.remove(0);
+				continue;
 			}
 			else if(bLine.startsWith("<C"))
 			{
@@ -203,7 +207,18 @@ public class SceneManager
 		
 		Class<?> type = f.getType().getComponentType();
 		
-		if(type == int.class)
+		if(type == String.class)
+		{
+			String[] array = new String[size];
+			for(int i = 0; i < size; i++)
+			{
+				String s = data.get(0);
+				array[i] = s.split("<V ")[1].split("=")[1].split("\"")[1];
+				data.remove(0);
+			}
+			f.set(o, array);
+		}
+		else if(type == int.class)
 		{
 			int[] array = new int[size];
 			for(int i = 0; i < size; i++)
@@ -213,6 +228,143 @@ public class SceneManager
 				data.remove(0);
 			}
 			f.set(o, array);
+		}
+		else if(type == float.class)
+		{
+			float[] array = new float[size];
+			for(int i = 0; i < size; i++)
+			{
+				String s = data.get(0);
+				array[i] = Float.parseFloat(s.split("<V ")[1].split("=")[1].split("\"")[1]);
+				data.remove(0);
+			}
+			f.set(o, array);
+		}
+		else if(type == boolean.class)
+		{
+			boolean[] array = new boolean[size];
+			for(int i = 0; i < size; i++)
+			{
+				String s = data.get(0);
+				array[i] = Boolean.valueOf(s.split("<V ")[1].split("=")[1].split("\"")[1]);
+				data.remove(0);
+			}
+			f.set(o, array);
+		}
+		else if(!type.isPrimitive())
+		{
+			if(Vector2.class.isAssignableFrom(type))
+			{
+				Vector2[] array = new Vector2[size];
+				for(int i = 0; i < size; i++)
+				{
+					String[] s = data.get(0).split(" ");
+					array[i] = new Vector2(Float.parseFloat(s[0]), Float.parseFloat(s[1]));
+					data.remove(0);
+				}
+				f.set(o, array);
+			}
+			else if(Sprite.class.isAssignableFrom(type))
+			{
+				Sprite[] array = new Sprite[size];
+				for(int i = 0; i < size; i++)
+				{
+					String s = data.get(0);
+					array[i] = Sprite.Get(s.split("<V ")[1].split("=")[1].split("\"")[1]);
+					data.remove(0);
+				}
+				f.set(o, array);
+			}
+			else if(AudioClip.class.isAssignableFrom(type))
+			{
+				AudioClip[] array = new AudioClip[size];
+				for(int i = 0; i < size; i++)
+				{
+					String s = data.get(0);
+					array[i] = AudioClip.Find(s.split("<V ")[1].split("=")[1].split("\"")[1]);
+					data.remove(0);
+				}
+				f.set(o, array);
+			}
+			else if(GUISkin.class.isAssignableFrom(type))
+			{
+				GUISkin[] array = new GUISkin[size];
+				for(int i = 0; i < size; i++)
+				{
+					String s = data.get(0);
+					array[i] = GUISkin.GetSkin(s.split("<V ")[1].split("=")[1].split("\"")[1]);
+					data.remove(0);
+				}
+				f.set(o, array);
+			}
+			else if(Texture.class.isAssignableFrom(type))
+			{
+				Texture[] array = new Texture[size];
+				for(int i = 0; i < size; i++)
+				{
+					String s = data.get(0);
+					array[i] = Texture.Find(s.split("<V ")[1].split("=")[1].split("\"")[1]);
+					data.remove(0);
+				}
+				f.set(o, array);
+			}
+			else if(Font.class.isAssignableFrom(type))
+			{
+				Font[] array = new Font[size];
+				for(int i = 0; i < size; i++)
+				{
+					String s = data.get(0);
+					array[i] = Font.Find(s.split("<V ")[1].split("=")[1].split("\"")[1]);
+					data.remove(0);
+				}
+				f.set(o, array);
+			}
+			else if(Material.class.isAssignableFrom(type))
+			{
+				Material[] array = new Material[size];
+				for(int i = 0; i < size; i++)
+				{
+					String s = data.get(0);
+					array[i] = Material.Get(s.split("<V ")[1].split("=")[1].split("\"")[1]);
+					data.remove(0);
+				}
+				f.set(o, array);
+			}
+			else if(Shader.class.isAssignableFrom(type))
+			{
+				Shader[] array = new Shader[size];
+				for(int i = 0; i < size; i++)
+				{
+					String s = data.get(0);
+					array[i] = Shader.Find(s.split("<V ")[1].split("=")[1].split("\"")[1]);
+					data.remove(0);
+				}
+				f.set(o, array);
+			}
+			else if(GameObject.class.isAssignableFrom(type))
+			{
+				GameObject[] array = new GameObject[size];
+				for(int i = 0; i < size; i++)
+				{
+					String s = data.get(0);
+					array[i] = GameObject.FindObjectByID(s.split("<V ")[1].split("=")[1].split("\"")[1]);
+					data.remove(0);
+				}
+				f.set(o, array);
+			}
+			else if(LogicBehaviour.class.isAssignableFrom(type))
+			{
+				LogicBehaviour[] array = new LogicBehaviour[size];
+				for(int i = 0; i < size; i++)
+				{
+					String s = data.get(0);
+					GameObject go = GameObject.FindObjectByID(s.split("<V ")[1].split("=")[1].split("\"")[1]);
+					if(go != null) array[i] = go.GetComponent(type.getName());
+					data.remove(0);
+				}
+				f.set(o, array);
+			}
+			else data.remove(0);
 		}
 	}
 }

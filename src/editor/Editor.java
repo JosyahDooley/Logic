@@ -283,7 +283,7 @@ public class Editor
 			{
 				if(draggedObject != null)
 				{
-					if(!disableDrop && new Rect(editorDrawArea.x, editorDrawArea.y, Application.Width() - editorDrawArea.width, Application.Height() - editorDrawArea.height).Contains(Mouse.Position()))
+					if(!disableDrop && new Rect(editorDrawArea.x, editorDrawArea.y, Application.Width() - editorDrawArea.width - editorDrawArea.x, Application.Height() - editorDrawArea.height - editorDrawArea.y).Contains(Mouse.Position()))
 					{
 						if(draggedObject instanceof Sprite)
 						{
@@ -341,7 +341,7 @@ public class Editor
 							go.AddComponent(sr);
 							
 							go.Parent(selected);
-							SetSelected(go);
+							//SetSelected(go);
 						}
 						//Have to make sure draggable is prefab and not already in the scene
 						//else if(draggedObject instanceof GameObject)
@@ -593,10 +593,19 @@ public class Editor
 				for(int i = 0; i < arr.length; i++)
 				{
 					Object current = arr[i];
-					if(current instanceof engine.CustomClass)
+					if(current == null)
+					{
+						fw.write(starter + "\t<V Element" + i + "=\"NULL\">\n");
+					}
+					else if(current instanceof engine.CustomClass)
 					{
 						//Dont do anything for now until I figure out a good way to write this
 						//WriteClass((engine.Object) current, fw, starter + "\t", "Element" + i);
+					}
+					else if(current instanceof GameObject)
+					{
+						if(f.get(o) == null) fw.write(starter + "\t<V Element" + i + "=\"NULL\">\n");
+						else fw.write(starter + "\t<V Element" + i + "=\"" + ((GameObject) current).instanceID() + "\">\n");
 					}
 					else if(current instanceof engine.Object)
 					{
